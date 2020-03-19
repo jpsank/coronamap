@@ -17,7 +17,7 @@ L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_toke
 
 
 // control that shows state info on hover
-var info = L.control();
+let info = L.control();
 
 info.onAdd = function (map) {
     this._div = L.DomUtil.create('div', 'info');
@@ -73,8 +73,13 @@ function style(feature) {
     };
 }
 
+let currentlyHighlighted;
+
 function highlightFeature(e) {
-    var layer = e.target;
+    if (currentlyHighlighted)
+        geojson.resetStyle(currentlyHighlighted);
+
+    let layer = e.target;
 
     layer.setStyle({
         weight: 5,
@@ -88,6 +93,8 @@ function highlightFeature(e) {
     }
 
     info.update(layer.feature.properties);
+
+    currentlyHighlighted = layer;
 }
 
 var geojson;
@@ -101,14 +108,20 @@ function zoomToFeature(e) {
     map.fitBounds(e.target.getBounds());
 }
 
-function onEachFeature(feature, layer) {
-    layer.on({
-        mouseover: highlightFeature,
-        mouseout: resetHighlight,
+let touchDevice = ('ontouchstart' in document.documentElement);
 
-        click: highlightFeature,
-        dblclick: zoomToFeature
-    });
+function onEachFeature(feature, layer) {
+    if (touchDevice)
+        layer.on({
+            click: highlightFeature,
+            dblclick: zoomToFeature
+        });
+    else
+        layer.on({
+            mouseover: highlightFeature,
+            mouseout: resetHighlight,
+            click: zoomToFeature
+        });
 }
 
 geojson = L.geoJson(statesData, {
