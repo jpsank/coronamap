@@ -7,17 +7,17 @@ from app.blueprints.main import bp
 
 # ------------------------------ FRONT PAGES ------------------------------
 
-with open(os.path.join(data_dir, "aggregate.json"), "r") as f:
-    aggregate = json.load(f)
-
 with open(os.path.join(data_dir, "geometry.json"), "r") as f:
-    geometry = f.read()
+    geometry = json.load(f)
 
 
 @bp.route('/')
 @bp.route('/index')
 def index():
-    worst_state = max(aggregate, key=lambda k: aggregate[k]["Confirmed"] if "Confirmed" in aggregate[k] else -1)
-    return render_template('main/home.html', title='Home', statesData=geometry,
-                           worst=[worst_state, aggregate[worst_state]])
+    state_props = [feature["properties"] for feature in geometry["features"]]
+    ranking = sorted(state_props, key=lambda props: props["Confirmed"]/props["Intensive-care beds"])
+    worst = ranking[-1]
+    safest = ranking[0]
+    return render_template('main/home.html', title='Home', statesData=json.dumps(geometry),
+                           worst=worst, safest=safest)
 

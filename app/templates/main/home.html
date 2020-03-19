@@ -9,10 +9,22 @@
 
 
 {% block app_content %}
+    <h3>coronamap</h3>
+    <p>
+        A daily-updating cloropleth map that shows confirmed COVID-19 cases per intensive-care bed for each US state.
+        <a href="https://github.com/puffyboa/coronamap">Github</a>
+    </p>
+    <br>
     <h1>COVID-19 Cases vs. ICU Capacity</h1>
     <div id="map"></div>
-    <p>The worst state is <b>{{ worst[0] }}</b>, with
-        {{ (worst[1]["Confirmed"]/worst[1]["Intensive-care beds"]) | round2 }} cases per intensive-care bed.</p>
+    <br>
+    <p>
+        The worst state is <b>{{ worst["name"] }}</b>, with
+        {{ (worst["Confirmed"]/worst["Intensive-care beds"]) | round2 }} cases per intensive-care bed.
+        <br>
+        The safest state is <b>{{ safest["name"] }}</b>, with
+        {{ (safest["Confirmed"]/safest["Intensive-care beds"]) | round2 }} cases per intensive-care bed.
+    </p>
 {% endblock %}
 
 

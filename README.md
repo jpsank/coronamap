@@ -2,7 +2,7 @@
 
 A daily-updating cloropleth map that shows confirmed COVID-19 cases per intensive-care bed for each US state.
 
-### Sources
+## Sources
 Hospital stats from [Modern Healthcare](https://www.modernhealthcare.com/hospitals/covid-19-could-fill-hospital-beds-how-many-are-there)
 
 Daily COVID-19 data from [CSSE](https://github.com/CSSEGISandData/COVID-19)

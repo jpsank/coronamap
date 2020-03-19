@@ -29,13 +29,14 @@ info.update = function (props) {
     let innerHTML = '<h4>COVID-19 Cases vs. ICU Capacity</h4>';
     if (props) {
         let cases = props['Confirmed'];
-        let date = props['Confirmed Date'];
         let ic_beds = props['Intensive-care beds'];
-        let percent_capacity = Math.round(100*(cases / ic_beds))/100;
+        let cases_per_bed = Math.round(100*(cases / ic_beds))/100;
         innerHTML += `<b>${props.name}</b><br>` +
-            `${cases} Confirmed cases as of ${date}<br>` +
+            `${cases} Confirmed cases <span class="small">(${props['Confirmed Date']})</span><br>` +
+            `&nbsp;&nbsp;&nbsp;&nbsp;${props['Deaths']} Deaths <span class="small">(${props['Deaths Date']})</span><br>` +
+            `&nbsp;&nbsp;&nbsp;&nbsp;${props['Recovered']} Recovered cases <span class="small">(${props['Recovered Date']})</span><br>` +
             `${ic_beds} Intensive-care beds<br>` +
-            `${percent_capacity} Cases per bed`;
+            `<b>${cases_per_bed}</b> Cases per bed`;
     } else {
         innerHTML += 'Hover over a state'
     }
