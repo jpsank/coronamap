@@ -1,0 +1,141 @@
+
+let mapboxAccessToken = "pk.eyJ1IjoicHVmZnlib2EiLCJhIjoiY2sxbXNqbng1MDQ1cDNocWQ1bGVucGwxYyJ9.BsdxpULi2RpbCiaEyW3rgA";
+
+
+
+var map = L.map('map').setView([37.8, -96], 4);
+
+L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=' + mapboxAccessToken, {
+    maxZoom: 18,
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+        '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+        'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+    id: 'mapbox/light-v9',
+    tileSize: 512,
+    zoomOffset: -1
+}).addTo(map);
+
+
+// control that shows state info on hover
+var info = L.control();
+
+info.onAdd = function (map) {
+    this._div = L.DomUtil.create('div', 'info');
+    this.update();
+    return this._div;
+};
+
+info.update = function (props) {
+    let innerHTML = '<h4>COVID-19 Cases vs. ICU Capacity</h4>';
+    if (props) {
+        let cases = props['Confirmed'];
+        let date = props['Confirmed Date'];
+        let ic_beds = props['Intensive-care beds'];
+        let percent_capacity = Math.round(100*(cases / ic_beds))/100;
+        innerHTML += `<b>${props.name}</b><br>` +
+            `${cases} Confirmed cases as of ${date}<br>` +
+            `${ic_beds} Intensive-care beds<br>` +
+            `${percent_capacity} Cases per bed`;
+    } else {
+        innerHTML += 'Hover over a state'
+    }
+    this._div.innerHTML = innerHTML;
+};
+
+info.addTo(map);
+
+
+// get color depending on value
+function getColor(d) {
+    return d > 200   ? '#FF00FF' :
+            d > 100   ? '#C000FF' :
+            d > 50   ? '#8000AC' :
+            d > 20   ? '#800026' :
+            d > 10  ? '#BD0026' :
+            d > 5  ? '#E31A1C' :
+            d > 2  ? '#FC4E2A' :
+            d > 1  ? '#FD8D3C' :
+            d > .5 ? '#FEB24C' :
+            d > .2 ? '#FED976' :
+            d > .1 ? '#FFEDA0' :
+                     '#FFFAC0';
+}
+
+function style(feature) {
+    return {
+        weight: 2,
+        opacity: 1,
+        color: 'white',
+        dashArray: '3',
+        fillOpacity: 0.7,
+        fillColor: getColor(feature.properties['Confirmed'] / feature.properties['Intensive-care beds'])
+    };
+}
+
+function highlightFeature(e) {
+    var layer = e.target;
+
+    layer.setStyle({
+        weight: 5,
+        color: '#666',
+        dashArray: '',
+        fillOpacity: 0.7
+    });
+
+    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+        layer.bringToFront();
+    }
+
+    info.update(layer.feature.properties);
+}
+
+var geojson;
+
+function resetHighlight(e) {
+    geojson.resetStyle(e.target);
+    info.update();
+}
+
+function zoomToFeature(e) {
+    map.fitBounds(e.target.getBounds());
+}
+
+function onEachFeature(feature, layer) {
+    layer.on({
+        mouseover: highlightFeature,
+        mouseout: resetHighlight,
+        click: zoomToFeature
+    });
+}
+
+geojson = L.geoJson(statesData, {
+    style: style,
+    onEachFeature: onEachFeature
+}).addTo(map);
+
+map.attributionControl.addAttribution('Hospital stats &copy; <a href="https://www.modernhealthcare.com/hospitals/covid-19-could-fill-hospital-beds-how-many-are-there">Modern Healthcare</a>, COVID-19 data &copy; <a href="https://github.com/CSSEGISandData/COVID-19">CSSE</a>');
+
+
+var legend = L.control({position: 'bottomright'});
+
+legend.onAdd = function (map) {
+
+    let div = L.DomUtil.create('div', 'info legend'),
+        grades = [0, .1, .2, .5, 1, 2, 5, 10, 20, 50, 100, 200],
+        labels = [],
+        from, to;
+
+    for (let i = 0; i < grades.length; i++) {
+        from = grades[i];
+        to = grades[i + 1];
+
+        labels.push(
+            '<i style="background:' + getColor(from+.0001) + '"></i> ' +
+            from + (to ? '&ndash;' + to : '+'));
+    }
+
+    div.innerHTML = labels.join('<br>');
+    return div;
+};
+
+legend.addTo(map);

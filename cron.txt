@@ -1,0 +1,1 @@
+0 0 * * * cd /var/www/coronamap/ && .venv/bin/python -m app.cli scrape > log.txt

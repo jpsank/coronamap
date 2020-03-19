@@ -1,0 +1,12 @@
+venv/
+.DS_Store
+__pycache__/
+.idea/
+
+instance/
+
+
+app/data/covid/*.json
+app/data/covid/*.csv
+geometry.json
+aggregate.json
