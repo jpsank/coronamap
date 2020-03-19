@@ -75,6 +75,8 @@ function style(feature) {
 
 let currentlyHighlighted;
 
+let geojson;
+
 function highlightFeature(e) {
     if (currentlyHighlighted)
         geojson.resetStyle(currentlyHighlighted);
@@ -96,8 +98,6 @@ function highlightFeature(e) {
 
     currentlyHighlighted = layer;
 }
-
-var geojson;
 
 function resetHighlight(e) {
     geojson.resetStyle(e.target);
