@@ -4,7 +4,6 @@ import os
 
 import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
-from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 
 from flask import Flask
 from flask_bootstrap import Bootstrap
@@ -28,7 +27,7 @@ def create_app():
     if app.config['SENTRY_DSN']:
         sentry_sdk.init(
             dsn=app.config['SENTRY_DSN'],
-            integrations=[FlaskIntegration(), SqlalchemyIntegration()]
+            integrations=[FlaskIntegration()]
         )
 
     # Bind Flask extensions to application object
