@@ -19,11 +19,11 @@
     <div id="map"></div>
     <br>
     <p>
-        The worst state is <b>{{ worst["name"] }}</b>, with
-        {{ (worst["Confirmed"]/worst["Intensive-care beds"]) | round2 }} cases per intensive-care bed.
+        The worst state is <b id="worst"></b>, with
+        <b id="worst-value"></b> cases per intensive-care bed.
         <br>
-        The safest state is <b>{{ safest["name"] }}</b>, with
-        {{ (safest["Confirmed"]/safest["Intensive-care beds"]) | round2 }} cases per intensive-care bed.
+        The safest state is <b id="safest"></b>, with
+        <b id="safest-value"></b> cases per intensive-care bed.
     </p>
 {% endblock %}
 
@@ -35,7 +35,6 @@
 
     <script>
         const mapboxAccessToken = '{{ mapboxAccessToken }}';
-        const statesData = {{ statesData | safe }};
     </script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 {% endblock %}

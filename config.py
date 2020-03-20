@@ -9,3 +9,7 @@ DEBUG = True
 
 # Logging
 LOGS_PATH = os.path.join(basedir, 'logs')
+
+# Flask-SQLAlchemy
+SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
+SQLALCHEMY_TRACK_MODIFICATIONS = False

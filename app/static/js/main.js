@@ -1,52 +1,60 @@
 
-// Required vars:
-// mapboxAccessToken
-// statesData
+// Required: mapboxAccessToken
+
 
 // -------------------- INIT MAP --------------------
 
-let map = L.map('map').setView([37.8, -96], 4);
+let map;
 
-L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=' + mapboxAccessToken, {
-    maxZoom: 18,
-    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
-        '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-        'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-    id: 'mapbox/light-v9',
-    tileSize: 512,
-    zoomOffset: -1
-}).addTo(map);
+function initMap() {
+    map = L.map('map').setView([37.8, -96], 4);
+
+    L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=' + mapboxAccessToken, {
+        maxZoom: 18,
+        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+            '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+            'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+        id: 'mapbox/light-v9',
+        tileSize: 512,
+        zoomOffset: -1
+    }).addTo(map);
+}
 
 // -------------------- INFO POPUP --------------------
 
-// control that shows state info on hover
-let info = L.control();
+let info;
 
-info.onAdd = function (map) {
-    this._div = L.DomUtil.create('div', 'info');
-    this.update();
-    return this._div;
-};
+function addInfo() {
+    // control that shows state info on hover
+    info = L.control();
 
-info.update = function (props) {
-    let innerHTML = '<h4>COVID-19 Cases vs. ICU Capacity</h4>';
-    if (props) {
-        let cases = props['Confirmed'];
-        let ic_beds = props['Intensive-care beds'];
-        let cases_per_bed = Math.round(100*(cases / ic_beds))/100;
-        innerHTML += `<b>${props.name}</b><br>` +
-            `${cases} Confirmed cases <span class="small">(${props['Confirmed Date']})</span><br>` +
-            `&nbsp;&nbsp;&nbsp;&nbsp;${props['Deaths']} Deaths <span class="small">(${props['Deaths Date']})</span><br>` +
-            `&nbsp;&nbsp;&nbsp;&nbsp;${props['Recovered']} Recovered cases <span class="small">(${props['Recovered Date']})</span><br>` +
-            `${ic_beds} Intensive-care beds<br>` +
-            `<b>${cases_per_bed}</b> Cases per bed`;
-    } else {
-        innerHTML += 'Hover over a state'
-    }
-    this._div.innerHTML = innerHTML;
-};
+    info.onAdd = function (map) {
+        this._div = L.DomUtil.create('div', 'info');
+        this.update();
+        return this._div;
+    };
 
-info.addTo(map);
+    info.update = function (props) {
+        let innerHTML = '<h4>COVID-19 Cases vs. ICU Capacity</h4>';
+        if (props) {
+            let cases_per_bed = Math.round(100 * props['cases per bed']) / 100;
+            innerHTML += `<b>${props.name}</b><br>`;
+            innerHTML += `${props['confirmed'][0]} Confirmed cases ` +
+                `<span class="small">(${props['confirmed'][1]})</span><br>`;
+            innerHTML += `&nbsp;&nbsp;&nbsp;&nbsp;${props['deaths'][0]} Deaths ` +
+                `<span class="small">(${props['deaths'][1]})</span><br>`;
+            innerHTML += `&nbsp;&nbsp;&nbsp;&nbsp;${props['recovered'][0]} Recovered cases ` +
+                `<span class="small">(${props['deaths'][1]})</span><br>`;
+            innerHTML += `${props['Intensive-care beds']} Intensive-care beds<br>` +
+                `<b>${cases_per_bed}</b> Cases per bed`;
+        } else {
+            innerHTML += 'Hover over a state'
+        }
+        this._div.innerHTML = innerHTML;
+    };
+
+    info.addTo(map);
+}
 
 
 // -------------------- FEATURE STYLING --------------------
@@ -74,7 +82,7 @@ function style(feature) {
         color: 'white',
         dashArray: '3',
         fillOpacity: 0.7,
-        fillColor: getColor(feature.properties['Confirmed'] / feature.properties['Intensive-care beds'])
+        fillColor: getColor(feature.properties['confirmed'][0] / feature.properties['Intensive-care beds'])
     };
 }
 
@@ -134,36 +142,77 @@ function onEachFeature(feature, layer) {
 
 // -------------------- FEATURE DATA --------------------
 
-geojson = L.geoJson(statesData, {
-    style: style,
-    onEachFeature: onEachFeature
-}).addTo(map);
+let geoData;
 
-map.attributionControl.addAttribution('Hospital stats &copy; <a href="https://www.modernhealthcare.com/hospitals/covid-19-could-fill-hospital-beds-how-many-are-there">Modern Healthcare</a>, COVID-19 data from <a href="https://github.com/CSSEGISandData/COVID-19">CSSE</a>');
+function addGeoJSON() {
+    geojson = L.geoJson(geoData, {
+        style: style,
+        onEachFeature: onEachFeature
+    }).addTo(map);
 
+    map.attributionControl.addAttribution('Hospital stats &copy; <a href="https://www.modernhealthcare.com/hospitals/covid-19-could-fill-hospital-beds-how-many-are-there">Modern Healthcare</a>, COVID-19 data from <a href="https://github.com/CSSEGISandData/COVID-19">CSSE</a>');
+}
 
 // -------------------- LEGEND --------------------
+function addLegend() {
+    let legend = L.control({position: 'bottomright'});
 
-let legend = L.control({position: 'bottomright'});
+    legend.onAdd = function (map) {
 
-legend.onAdd = function (map) {
+        let div = L.DomUtil.create('div', 'info legend'),
+            grades = [0, .1, .2, .5, 1, 2, 5, 10, 20, 50, 100, 200],
+            labels = [],
+            from, to;
 
-    let div = L.DomUtil.create('div', 'info legend'),
-        grades = [0, .1, .2, .5, 1, 2, 5, 10, 20, 50, 100, 200],
-        labels = [],
-        from, to;
+        for (let i = 0; i < grades.length; i++) {
+            from = grades[i];
+            to = grades[i + 1];
 
-    for (let i = 0; i < grades.length; i++) {
-        from = grades[i];
-        to = grades[i + 1];
+            labels.push(
+                '<i style="background:' + getColor(from + .0001) + '"></i> ' +
+                from + (to ? '&ndash;' + to : '+'));
+        }
 
-        labels.push(
-            '<i style="background:' + getColor(from+.0001) + '"></i> ' +
-            from + (to ? '&ndash;' + to : '+'));
-    }
+        div.innerHTML = labels.join('<br>');
+        return div;
+    };
 
-    div.innerHTML = labels.join('<br>');
-    return div;
-};
+    legend.addTo(map);
+}
 
-legend.addTo(map);
+
+// -------------------- WORST/SAFEST --------------------
+
+function setWorst(region, cases_per_bed) {
+    document.getElementById("worst").innerText = region;
+    document.getElementById("worst-value").innerText = Math.round(100*cases_per_bed)/100;
+}
+
+
+function setSafest(region, cases_per_bed) {
+    document.getElementById("safest").innerText = region;
+    document.getElementById("safest-value").innerText = Math.round(100*cases_per_bed)/100;
+}
+
+// -------------------- MAIN --------------------
+
+async function main() {
+    let data = await fetch(`fetch`)
+        .then(response => {
+            return response.json()
+        })
+        .catch(err => {
+            console.log(err)
+        });
+    geoData = data['geojson'];
+
+    setWorst(...data['worst']);
+    setSafest(...data['safest']);
+
+    initMap();
+    addInfo();
+    addGeoJSON();
+    addLegend();
+}
+
+main();

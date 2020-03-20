@@ -4,8 +4,11 @@ import os
 
 import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
+from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 
 from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 
@@ -13,6 +16,8 @@ import config
 
 
 # Initialize Flask extensions
+migrate = Migrate()
+db = SQLAlchemy()
 bootstrap = Bootstrap()
 moment = Moment()
 
@@ -27,10 +32,12 @@ def create_app():
     if app.config['SENTRY_DSN']:
         sentry_sdk.init(
             dsn=app.config['SENTRY_DSN'],
-            integrations=[FlaskIntegration()]
+            integrations=[FlaskIntegration(), SqlalchemyIntegration()]
         )
 
     # Bind Flask extensions to application object
+    db.init_app(app)
+    migrate.init_app(app, db)
     bootstrap.init_app(app)
     moment.init_app(app)
 

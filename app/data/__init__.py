@@ -1,6 +1,6 @@
 
+print("Scraping data...")
 import app.data.covid
-print("Aggregating...")
-import app.data.aggregate
-print("Generating geometry...")
-import app.data.geometry
+print("Populating database...")
+import app.data.populate
+print("Done")
