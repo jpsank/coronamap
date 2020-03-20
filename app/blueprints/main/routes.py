@@ -1,5 +1,5 @@
 import os, json
-from flask import render_template
+from flask import render_template, current_app
 
 from config import data_dir
 from app.blueprints.main import bp
@@ -18,6 +18,7 @@ def index():
     ranking = sorted(state_props, key=lambda props: props["Confirmed"]/props["Intensive-care beds"])
     worst = ranking[-1]
     safest = ranking[0]
-    return render_template('main/home.html', title='Home', statesData=json.dumps(geometry),
+    return render_template('main/home.html', title='Home', mapboxAccessToken=current_app.config['MAPBOX_ACCESS_TOKEN'],
+                           statesData=json.dumps(geometry),
                            worst=worst, safest=safest)
 

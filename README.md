@@ -1,6 +1,6 @@
 # COVID-19 cases vs. ICU capacity map
 
-A daily-updating cloropleth map that shows confirmed COVID-19 cases per intensive-care bed for each US state.
+A daily-updating choropleth map that shows confirmed COVID-19 cases per intensive-care bed for each US state.
 
 ## Sources
 Hospital stats from [Modern Healthcare](https://www.modernhealthcare.com/hospitals/covid-19-could-fill-hospital-beds-how-many-are-there)
@@ -16,7 +16,7 @@ Next, run the scraper with the following sample command:
 
 `python -m app.cli scrape`
 
-which will scrape COVID-19 data, aggregate it with hospital stats, and generate a geometry data file for Mapbox.
+which will scrape COVID-19 data, aggregate it with hospital stats, and generate a GeoJSON file for Mapbox.
 This will then be displayed as a map when the user views the website.
 
 Once you've scraped the data, go ahead and start the flask server, which resides in the run.py file.
@@ -24,17 +24,22 @@ Once you've scraped the data, go ahead and start the flask server, which resides
 ### Configuration
 The following vars need to be put in a `config.py` file inside an `instance` dir in the root of the repo. 
 
+- `MAPBOX_ACCESS_TOKEN`: An access token for [Mapbox](https://www.mapbox.com/). It's required for the map background.
+
 - `SENTRY_DSN`: A DSN for Sentry. If provided, Sentry error reporting is setup.
 
 An example would look like this
 ```python
+# An access token for Mapbox. It's required for the map background.
+MAPBOX_ACCESS_TOKEN = "wq.s12eD3dad21xd34g23bacs4s2c3x4ebg2muc42fdsfsfsf"
+
 # A DSN for sentry. If provided, sentry error reporting is set up.
 SENTRY_DSN = "123123@sentry.io/32423432"
 ```
 
 ### Daily Update
 Add the contents of the [cron.txt](cron.txt) file to your crontab to activate daily running of the scraper.
-This will run the scraper at 12:00am every day (CSSE updates their data daily at 11:59pm).
+This will run the scraper at 12:00am every day (CSSE updates their data daily at 23:59 UTC).
 
 ## Website
 ![A view of the homepage](screenshots/homepage.png)

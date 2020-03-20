@@ -1,9 +1,11 @@
 
-let mapboxAccessToken = "pk.eyJ1IjoicHVmZnlib2EiLCJhIjoiY2sxbXNqbng1MDQ1cDNocWQ1bGVucGwxYyJ9.BsdxpULi2RpbCiaEyW3rgA";
+// Required vars:
+// mapboxAccessToken
+// statesData
 
+// -------------------- INIT MAP --------------------
 
-
-var map = L.map('map').setView([37.8, -96], 4);
+let map = L.map('map').setView([37.8, -96], 4);
 
 L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=' + mapboxAccessToken, {
     maxZoom: 18,
@@ -15,6 +17,7 @@ L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_toke
     zoomOffset: -1
 }).addTo(map);
 
+// -------------------- INFO POPUP --------------------
 
 // control that shows state info on hover
 let info = L.control();
@@ -46,6 +49,8 @@ info.update = function (props) {
 info.addTo(map);
 
 
+// -------------------- FEATURE STYLING --------------------
+
 // get color depending on value
 function getColor(d) {
     return d > 200   ? '#FF00FF' :
@@ -73,9 +78,11 @@ function style(feature) {
     };
 }
 
-let currentlyHighlighted;
+// -------------------- FEATURE CONTROL --------------------
 
 let geojson;
+
+let currentlyHighlighted;
 
 function highlightFeature(e) {
     if (currentlyHighlighted)
@@ -108,10 +115,10 @@ function zoomToFeature(e) {
     map.fitBounds(e.target.getBounds());
 }
 
-let touchDevice = ('ontouchstart' in document.documentElement);
+let isTouchDevice = ('ontouchstart' in document.documentElement);
 
 function onEachFeature(feature, layer) {
-    if (touchDevice)
+    if (isTouchDevice)
         layer.on({
             click: highlightFeature,
             dblclick: zoomToFeature
@@ -124,6 +131,9 @@ function onEachFeature(feature, layer) {
         });
 }
 
+
+// -------------------- FEATURE DATA --------------------
+
 geojson = L.geoJson(statesData, {
     style: style,
     onEachFeature: onEachFeature
@@ -132,7 +142,9 @@ geojson = L.geoJson(statesData, {
 map.attributionControl.addAttribution('Hospital stats &copy; <a href="https://www.modernhealthcare.com/hospitals/covid-19-could-fill-hospital-beds-how-many-are-there">Modern Healthcare</a>, COVID-19 data from <a href="https://github.com/CSSEGISandData/COVID-19">CSSE</a>');
 
 
-var legend = L.control({position: 'bottomright'});
+// -------------------- LEGEND --------------------
+
+let legend = L.control({position: 'bottomright'});
 
 legend.onAdd = function (map) {
 
