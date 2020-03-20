@@ -12,9 +12,9 @@ Installation is pretty simple. Clone the repo, setup a virtualenv, then install 
 
 `pip install -r requirements.txt`
 
-Next, run the scraper with the following sample command:
+Next, you can run the scraper manually with the `cron.sh` script:
 
-`python -m app.cli scrape`
+`./cron.sh`
 
 which will scrape COVID-19 data, aggregate it with hospital stats, and generate a GeoJSON file for Mapbox.
 This will then be displayed as a map when the user views the website.
