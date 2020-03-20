@@ -171,11 +171,11 @@ function addLegend() {
             to = grades[i + 1];
 
             labels.push(
-                '<i style="background:' + getColor(from + .0001) + '"></i> ' +
-                from + (to ? '&ndash;' + to : '+'));
+                '<span><i style="background:' + getColor(from + .0001) + '"></i> ' +
+                from + (to ? '&ndash;' + to : '+') + '</span>');
         }
 
-        div.innerHTML = labels.join('<br>');
+        div.innerHTML = labels.join('');
         return div;
     };
 
