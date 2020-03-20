@@ -1,5 +1,7 @@
 
-// Required: mapboxAccessToken
+// Required:
+// mapboxAccessToken
+// selectedDate
 
 
 // -------------------- INIT MAP --------------------
@@ -39,12 +41,12 @@ function addInfo() {
         if (props) {
             let cases_per_bed = Math.round(100 * props['cases per bed']) / 100;
             innerHTML += `<b>${props.name}</b><br>`;
-            innerHTML += `${props['confirmed'][0]} Confirmed cases ` +
-                `<span class="small">(${props['confirmed'][1]})</span><br>`;
-            innerHTML += `&nbsp;&nbsp;&nbsp;&nbsp;${props['deaths'][0]} Deaths ` +
-                `<span class="small">(${props['deaths'][1]})</span><br>`;
-            innerHTML += `&nbsp;&nbsp;&nbsp;&nbsp;${props['recovered'][0]} Recovered cases ` +
-                `<span class="small">(${props['deaths'][1]})</span><br>`;
+            innerHTML += `${props['confirmed']} Confirmed cases ` +
+                `<span class="small">(${selectedDate})</span><br>`;
+            innerHTML += `&nbsp;&nbsp;&nbsp;&nbsp;${props['deaths']} Deaths ` +
+                `<span class="small">(${selectedDate})</span><br>`;
+            innerHTML += `&nbsp;&nbsp;&nbsp;&nbsp;${props['recovered']} Recovered cases ` +
+                `<span class="small">(${selectedDate})</span><br>`;
             innerHTML += `${props['Intensive-care beds']} Intensive-care beds<br>` +
                 `<b>${cases_per_bed}</b> Cases per bed`;
         } else {
@@ -82,7 +84,7 @@ function style(feature) {
         color: 'white',
         dashArray: '3',
         fillOpacity: 0.7,
-        fillColor: getColor(feature.properties['confirmed'][0] / feature.properties['Intensive-care beds'])
+        fillColor: getColor(feature['properties']['cases per bed'])
     };
 }
 
@@ -181,35 +183,59 @@ function addLegend() {
 }
 
 
-// -------------------- WORST/SAFEST --------------------
+// -------------------- INFO ELEMENTS --------------------
 
-function setWorst(region, cases_per_bed) {
-    document.getElementById("worst").innerText = region;
-    document.getElementById("worst-value").innerText = Math.round(100*cases_per_bed)/100;
+function setWorst(feature) {
+    let cpb = feature["properties"]["cases per bed"];
+    document.getElementById("worst").innerText = feature["properties"]["name"];
+    document.getElementById("worst-value").innerText = Math.round(100*cpb)/100;
 }
 
 
-function setSafest(region, cases_per_bed) {
-    document.getElementById("safest").innerText = region;
-    document.getElementById("safest-value").innerText = Math.round(100*cases_per_bed)/100;
+function setSafest(feature) {
+    let cpb = feature["properties"]["cases per bed"];
+    document.getElementById("safest").innerText = feature["properties"]["name"];
+    document.getElementById("safest-value").innerText = Math.round(100*cpb)/100;
+}
+
+
+function setBadStates(features) {
+    let badStates = features.filter(feat => feat['properties']['cases per bed'] > 9);
+
+    let num = document.getElementById("num-bad-states");
+    num.innerText = badStates.length;
+
+    let list = document.getElementById("bad-states");
+    list.innerHTML = badStates.map(feat => `<b>${feat['properties']['name']}</b>`);
+    if (!list.innerHTML)
+        list.innerHTML = '<b>none</b>';
+}
+
+function setSelectedDate() {
+    document.getElementById(selectedDate).classList.add("selected");
 }
 
 // -------------------- MAIN --------------------
 
 async function main() {
-    let url = monthDayYear? `fetch/${monthDayYear}` : 'fetch';
-    let data = await fetch(url)
+    let url = selectedDate? `fetch/${selectedDate}` : 'fetch';
+    geoData = await fetch(url)
         .then(response => {
             return response.json()
         })
         .catch(err => {
             console.log(err)
         });
-    geoData = data['geojson'];
 
-    setWorst(...data['worst']);
-    setSafest(...data['safest']);
+    setSelectedDate();
 
+    let features = geoData["features"];
+    setBadStates(features);
+
+    setSafest(features[0]);
+    setWorst(features[features.length-1]);
+
+    // Map
     initMap();
     addInfo();
     addGeoJSON();

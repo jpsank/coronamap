@@ -16,6 +16,11 @@
     </p>
     <br>
     <h1>COVID-19 Cases vs. ICU Capacity</h1>
+    <div class="dates">
+        {% for date in dates %}
+            <a class="date" id="{{ date }}" href="{{ date }}">{{ date|replace('-', '/') }}</a>
+        {% endfor %}
+    </div>
     <div id="map"></div>
     <br>
     <p>
@@ -25,6 +30,20 @@
         The safest state is <b id="safest"></b>, with
         <b id="safest-value"></b> cases per intensive-care bed.
     </p>
+    <br>
+    <p>
+        A <a href="https://www.cdc.gov/mmwr/volumes/69/wr/mm6912e2.htm?s_cid=mm6912e2_w">new CDC analysis</a>
+        of more than 2,400 cases of COVID-19 that have occurred in the United States in the last month
+        shows that between 1 in 20 and 1 in 9 people who are confirmed cases require ICU admission.
+    </p>
+    <p>
+        As of {{ selected_date|replace('-', '/') }}:
+        If we assume that 1 in 9 cases require ICU admission, then there are
+        <b id="num-bad-states"></b> states with too few intensive-care beds for their number of cases:
+        <br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span id="bad-states"></span>
+    </p>
+    <br>
 {% endblock %}
 
 
@@ -34,8 +53,8 @@
     crossorigin=""></script>
 
     <script>
-        const mapboxAccessToken = '{{ mapboxAccessToken }}';
-        const monthDayYear = '{{ mdy }}';
+        const mapboxAccessToken = '{{ mapbox_access_token }}';
+        const selectedDate = '{{ selected_date }}';
     </script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 {% endblock %}

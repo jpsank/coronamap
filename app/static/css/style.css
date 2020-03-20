@@ -1,4 +1,8 @@
 
+body {
+    font-size: medium;
+}
+
 @media (max-width: 1000px) {
     h1 {
         font-size: 2em;
@@ -13,6 +17,21 @@
 .column {
     flex: 50%;
 }
+
+
+.dates {
+    font-size: small;
+    background-color: whitesmoke;
+}
+.date {
+    color: black;
+    background-color: whitesmoke;
+}
+.date.selected {
+    background-color: lightskyblue;
+}
+
+
 
 
 #map { height: 620px; }
