@@ -1,21 +1,27 @@
-import os, json
+import datetime
 from flask import render_template, current_app, jsonify
 
 from app.models import Region
 from app.blueprints.main import bp
 
 
-# ------------------------------ FRONT PAGES ------------------------------
+# ------------------------------ FRONT PAGE ------------------------------
+
+@bp.route('/', defaults={'mdy': None})
+@bp.route('/index', defaults={'mdy': None})
+@bp.route('/<mdy>')
+def index(mdy):
+    return render_template('main/home.html', title='Home', mapboxAccessToken=current_app.config['MAPBOX_ACCESS_TOKEN'],
+                           mdy=mdy)
 
 
-@bp.route('/')
-@bp.route('/index')
-def index():
-    # state_props = [feature["properties"] for feature in geometry["features"]]
-    # ranking = sorted(state_props, key=lambda props: props["Confirmed"]/props["Intensive-care beds"])
-    # worst = ranking[-1]
-    # safest = ranking[0]
-    return render_template('main/home.html', title='Home', mapboxAccessToken=current_app.config['MAPBOX_ACCESS_TOKEN'])
+# ------------------------------ FETCH ------------------------------
+
+def get_date(string):
+    try:
+        return datetime.datetime.strptime(string, '%m-%d-%y').date()
+    except ValueError:
+        return None
 
 
 def get_time_series_item(time_series, mdy):
@@ -28,12 +34,13 @@ def get_time_series_item(time_series, mdy):
 @bp.route('/fetch', defaults={'mdy': None})
 @bp.route('/fetch/<mdy>')
 def fetch_days(mdy):
+    date = None if mdy is None else get_date(mdy)
 
     geojson = {"type": "FeatureCollection", "features": []}
     worst = None
     safest = None
     for region in Region.query.all():
-        feature = region.to_geo_feature(mdy)
+        feature = region.to_geo_feature(date)
         geojson["features"].append(feature)
 
         name = feature['properties']['name']

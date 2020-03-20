@@ -197,7 +197,8 @@ function setSafest(region, cases_per_bed) {
 // -------------------- MAIN --------------------
 
 async function main() {
-    let data = await fetch(`fetch`)
+    let url = monthDayYear? `fetch/${monthDayYear}` : 'fetch';
+    let data = await fetch(url)
         .then(response => {
             return response.json()
         })
