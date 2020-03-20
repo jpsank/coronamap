@@ -207,12 +207,6 @@ function setBadStates(features) {
 
     let list = document.getElementById("bad-states");
     list.innerHTML = badStates.map(feat => `<b>${feat['properties']['name']}</b>`);
-    if (!list.innerHTML)
-        list.innerHTML = '<b>none</b>';
-}
-
-function setSelectedDate() {
-    document.getElementById(selectedDate).classList.add("selected");
 }
 
 // -------------------- MAIN --------------------
@@ -226,8 +220,6 @@ async function main() {
         .catch(err => {
             console.log(err)
         });
-
-    setSelectedDate();
 
     let features = geoData["features"];
     setBadStates(features);

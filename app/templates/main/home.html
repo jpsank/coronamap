@@ -18,7 +18,9 @@
     <h1>COVID-19 Cases vs. ICU Capacity</h1>
     <div class="dates">
         {% for date in dates %}
-            <a class="date" id="{{ date }}" href="{{ date }}">{{ date|replace('-', '/') }}</a>
+            <a class="date {% if date == selected_date %}selected{% endif %}" id="{{ date }}" href="{{ date }}">
+                {{ date|replace('-', '/') }}
+            </a>
         {% endfor %}
     </div>
     <div id="map"></div>
@@ -37,9 +39,10 @@
         shows that between 1 in 20 and 1 in 9 people who are confirmed cases require ICU admission.
     </p>
     <p>
-        As of {{ selected_date|replace('-', '/') }}:
-        If we assume that 1 in 9 cases require ICU admission, then there are
-        <b id="num-bad-states"></b> states with too few intensive-care beds for their number of cases:
+        If it turns out that 1 in 9 cases require ICU admission, then
+        <b id="num-bad-states"></b> states
+        as of {{ selected_date|replace('-', '/') }}
+        have too few intensive-care beds for their number of cases.
         <br>
         &nbsp;&nbsp;&nbsp;&nbsp;<span id="bad-states"></span>
     </p>
