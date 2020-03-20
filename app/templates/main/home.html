@@ -19,8 +19,7 @@
     <div class="dates">
         {% for date in dates %}
             <a class="date {% if date == selected_date %}selected{% endif %}" id="{{ date }}" href="{{ date }}">
-                {{ date|replace('-', '/') }}
-            </a>
+                {{ date|replace('-', '/') }}</a>
         {% endfor %}
     </div>
     <div id="map"></div>
