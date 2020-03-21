@@ -26,12 +26,18 @@ body {
     flex-wrap: wrap;
     font-size: small;
     background-color: whitesmoke;
+    /*background-color: rgb(204, 210, 211);*/
 }
 .date {
-    margin: 2px;
-    padding: 3px;
+    margin: 3px;
+    padding: 2px;
+    border-radius: 1px;
     color: black;
-    background-color: white;
+    background: white;
+    box-shadow: 0 0 3px rgba(0,0,0,0.1);
+}
+.date:hover {
+    text-decoration: none;
 }
 .date.selected {
     background-color: lightblue;
