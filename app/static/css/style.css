@@ -20,15 +20,25 @@ body {
 
 
 .dates {
+    padding: 8px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
     font-size: small;
     background-color: whitesmoke;
 }
 .date {
+    margin: 2px;
+    padding: 3px;
     color: black;
-    background-color: whitesmoke;
+    background-color: white;
 }
 .date.selected {
     background-color: lightblue;
+}
+.date.selected:hover {
+    color: black;
+    text-decoration: none;
 }
 
 

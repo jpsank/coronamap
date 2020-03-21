@@ -15,7 +15,7 @@ from app.blueprints.main import bp
 @bp.route('/<date>')
 def index(date):
     recorded_dates = db.session.query(distinct(Confirmed.recorded_at)).order_by(Confirmed.recorded_at.desc())\
-        .limit(20).all()
+        .limit(18).all()
     recorded_dates = [date_fmt_string(d[0]) for d in recorded_dates]
 
     # if date is unspecified or is not a valid date, use latest date
