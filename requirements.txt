@@ -6,7 +6,6 @@ Click==7.0
 dominate==2.4.0
 Flask==1.1.1
 Flask-Bootstrap==3.3.7.1
-Flask-Migrate==2.5.3
 Flask-Moment==0.9.0
 Flask-SQLAlchemy==2.4.1
 idna==2.9

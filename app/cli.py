@@ -1,14 +1,14 @@
 import os
 import click
 
+from app import db
+
 
 def register(cli):
     @cli.command()
     def init():
         print("Initializing database...")
-        os.system("flask db init")
-        os.system("flask db migrate")
-        os.system("flask db upgrade")
+        db.create_all()
 
     @cli.command()
     def scrape():

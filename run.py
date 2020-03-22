@@ -1,6 +1,5 @@
-from app import create_app, cli
+from app import app, cli
 
-app = create_app()
 cli.register(app.cli)
 
 

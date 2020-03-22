@@ -9,7 +9,7 @@ migrations/
 logs/
 
 instance/
-
+todo.txt
 
 app/data/covid/*.json
 app/data/covid/*.csv

@@ -1,3 +1,1 @@
-source venv/bin/activate
-export FLASK_APP=run.py
-flask scrape
+venv/bin/python -m app.cli scrape
