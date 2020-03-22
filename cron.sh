@@ -1,1 +1,1 @@
-venv/bin/python -m app.cli scrape
+.venv/bin/python -m app.cli scrape
