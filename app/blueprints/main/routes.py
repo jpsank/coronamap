@@ -61,7 +61,7 @@ def fetch(date):
         .add_column(Confirmed.value) \
         .add_column(Deaths.value) \
         .add_column(Recovered.value) \
-        .add_column((cast(Confirmed.value, Float) / cast(Region.intensive_care_beds, Float)).label("cases_per_bed")) \
+        .add_column((cast(Confirmed.value, Float) / cast(Region.total_icu_beds, Float)).label("cases_per_bed")) \
         .order_by("cases_per_bed").all()
 
     geojson = {"type": "FeatureCollection", "features": []}
@@ -69,11 +69,14 @@ def fetch(date):
         properties = {
             "name": region.name,
 
-            "Hospitals reporting": region.hospitals,
-            "Intensive-care beds": region.intensive_care_beds,
-            "Specialty ICU beds": region.specialty_icu_beds,
-            "Acute-care beds": region.acute_care_beds,
-            "Total beds": region.total_beds,
+            "Total Hospital Beds": region.total_beds,
+            "Total ICU Beds": region.total_icu_beds,
+            "Available Hospital Beds": region.available_beds,
+            "Potentially Available Hospital Beds*": region.potentially_available_beds,
+            "Available ICU Beds": region.available_icu_beds,
+            "Potentially Available ICU Beds*": region.potentially_available_icu_beds,
+            "Adult Population": region.adult_population,
+            "Population 65+": region.population_65plus,
 
             "confirmed": confirmed,
             "deaths": deaths,

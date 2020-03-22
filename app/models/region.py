@@ -5,14 +5,20 @@ from app.models.base import Base
 
 
 class Region(Base):
+    """
+    Contains all data for a single Hospital Referral Region (HRR)
+    """
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(300))
 
-    hospitals = db.Column(db.Integer)
-    intensive_care_beds = db.Column(db.Integer)
-    specialty_icu_beds = db.Column(db.Integer)
-    acute_care_beds = db.Column(db.Integer)
     total_beds = db.Column(db.Integer)
+    total_icu_beds = db.Column(db.Integer)
+    available_beds = db.Column(db.Integer)
+    potentially_available_beds = db.Column(db.Integer)  # based on 50% reduction in current occupation of beds
+    available_icu_beds = db.Column(db.Integer)
+    potentially_available_icu_beds = db.Column(db.Integer)  # based on 50% reduction in current occupation of beds
+    adult_population = db.Column(db.Integer)
+    population_65plus = db.Column(db.Integer)
 
     geometry = db.Column(db.String)
 
