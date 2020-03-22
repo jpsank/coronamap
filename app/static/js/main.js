@@ -47,7 +47,7 @@ function addInfo() {
                 `<span class="small">(${selectedDate})</span><br>`;
             innerHTML += `&nbsp;&nbsp;&nbsp;&nbsp;${props['recovered']} Recovered cases ` +
                 `<span class="small">(${selectedDate})</span><br>`;
-            innerHTML += `${props['Intensive-care beds']} Intensive-care beds<br>` +
+            innerHTML += `${props['Total ICU Beds']} Total ICU beds<br>` +
                 `<b>${cases_per_bed}</b> Cases per bed`;
         } else {
             innerHTML += 'Hover over a state'
@@ -152,7 +152,7 @@ function addGeoJSON() {
         onEachFeature: onEachFeature
     }).addTo(map);
 
-    map.attributionControl.addAttribution('Hospital stats &copy; <a href="https://www.modernhealthcare.com/hospitals/covid-19-could-fill-hospital-beds-how-many-are-there">Modern Healthcare</a>, COVID-19 data &copy; <a href="https://github.com/CSSEGISandData/COVID-19">JHU CSSE</a>');
+    map.attributionControl.addAttribution('Healthcare data &copy; <a href="https://globalepidemics.org/2020/03/17/caring-for-covid-19-patients/">HGHI</a>, COVID-19 data &copy; <a href="https://github.com/CSSEGISandData/COVID-19">JHU CSSE</a>');
 }
 
 // -------------------- LEGEND --------------------
