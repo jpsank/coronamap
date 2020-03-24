@@ -2,7 +2,7 @@ import json
 import os, datetime, re
 
 from app import db
-from app.models import Region, CoronaStat, Confirmed, Deaths, Recovered
+from app.models import Region, CoronaStat
 from config import basedir, data_dir
 
 
@@ -13,46 +13,24 @@ def load_data(fn):
     return data
 
 
-def to_objects(table):
-    """ convert table rows to list of objects """
-    headers, rows = table
-    return [{headers[i]: col for i, col in enumerate(row)} for row in rows]
-
-
 def index_by_key(objects, key):
     """ index objects by their value of a key """
     return {obj[key]: {k: obj[k] for k in obj if k != key} for obj in objects}
 
 
-def get_date(string):
-    try:
-        return datetime.datetime.strptime(string, '%m/%d/%y').date()
-    except ValueError:
-        return None
-
-
-confirmed = index_by_key(to_objects(load_data("covid/confirmed.json")), "Province/State")
-deaths = index_by_key(to_objects(load_data("covid/deaths.json")), "Province/State")
-recovered = index_by_key(to_objects(load_data("covid/recovered.json")), "Province/State")
-
+states_daily = load_data("covid/states_daily.json")
 hospital_data = index_by_key(load_data("static/hospital-data.json"), "State")
-
 geojson = load_data("static/states.geo.json")
-
-
-def yield_timeseries(stats):
-    for k, v in stats.items():
-        dt = get_date(k)
-        if dt:
-            yield int(v), dt
 
 
 for feature in geojson["features"]:
     state_id = int(feature["id"])
     name = feature["properties"]["name"]
+    full = feature["properties"]["full"]
 
     region = Region.get_or_create(name=name)
     region.id = state_id
+    region.full_name = full
     region.geometry = json.dumps(feature["geometry"])
 
     if name in hospital_data:
@@ -64,19 +42,18 @@ for feature in geojson["features"]:
         region.potentially_available_icu_beds = hospital_data[name]["Potentially Available ICU Beds*"]
         region.adult_population = hospital_data[name]["Adult Population"]
         region.population_65plus = hospital_data[name]["Population 65+"]
-
-    if name in confirmed:
-        for value, recorded_at in yield_timeseries(confirmed[name]):
-            s = CoronaStat.get_or_create(Confirmed, region_id=region.id, value=value, recorded_at=recorded_at)
-            db.session.merge(s)
-    if name in deaths:
-        for value, recorded_at in yield_timeseries(deaths[name]):
-            s = CoronaStat.get_or_create(Deaths, region_id=region.id, value=value, recorded_at=recorded_at)
-            db.session.merge(s)
-    if name in recovered:
-        for value, recorded_at in yield_timeseries(recovered[name]):
-            s = CoronaStat.get_or_create(Recovered, region_id=region.id, value=value, recorded_at=recorded_at)
-            db.session.merge(s)
-
     db.session.merge(region)
+db.session.commit()
+
+
+for stat in states_daily:
+    recorded_at = datetime.datetime.strptime(str(stat["date"]), '%Y%m%d').date()
+    cs = CoronaStat.get_or_create(region_name=stat["state"], recorded_at=recorded_at)
+    cs.positive = stat["positive"]
+    cs.negative = stat["negative"]
+    cs.pending = stat["pending"]
+    cs.hospitalized = stat["hospitalized"]
+    cs.death = stat["death"]
+    cs.total_tests = stat["total"]
+    db.session.merge(cs)
 db.session.commit()

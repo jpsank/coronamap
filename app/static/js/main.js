@@ -26,6 +26,10 @@ function initMap() {
 
 let info;
 
+function formatNum(n) {
+    return n === null? 'N/A' : n.toLocaleString();
+}
+
 function addInfo() {
     // control that shows state info on hover
     info = L.control();
@@ -39,16 +43,25 @@ function addInfo() {
     info.update = function (props) {
         let innerHTML = '<h4>COVID-19 Cases vs. ICU Capacity</h4>';
         if (props) {
-            let cases_per_bed = Math.round(100 * props['cases per bed']) / 100;
-            innerHTML += `<b>${props.name}</b><br>`;
-            innerHTML += `${props['confirmed']} Confirmed cases ` +
-                `<span class="small">(${selectedDate})</span><br>`;
-            innerHTML += `&nbsp;&nbsp;&nbsp;&nbsp;${props['deaths']} Deaths ` +
-                `<span class="small">(${selectedDate})</span><br>`;
-            innerHTML += `&nbsp;&nbsp;&nbsp;&nbsp;${props['recovered']} Recovered cases ` +
-                `<span class="small">(${selectedDate})</span><br>`;
-            innerHTML += `${props['Total ICU Beds']} Total ICU beds<br>` +
-                `<b>${cases_per_bed}</b> Cases per bed`;
+            let full_name = props['full_name'],
+                positive = formatNum(props['positive']),
+                negative = formatNum(props['negative']),
+                total_tests = formatNum(props['total_tests']),
+                pending = formatNum(props['pending']),
+                hospitalized = formatNum(props['hospitalized']),
+                death = formatNum(props['death']),
+                cases_per_bed2 = formatNum(props['cases_per_bed2']),
+                total_icu_beds = formatNum(props['Total ICU Beds']);
+
+            innerHTML += `<b>${full_name}</b><br>`;
+            innerHTML += `${positive} positive tests <span class="small">(${selectedDate})</span><br>`;
+            innerHTML += `&nbsp;&nbsp;&nbsp;&nbsp;${negative} negative tests<br>`;
+            innerHTML += `&nbsp;&nbsp;&nbsp;&nbsp;${pending} pending tests<br>`;
+            innerHTML += `&nbsp;&nbsp;&nbsp;&nbsp;${total_tests} total tests<br>`;
+            innerHTML += `&nbsp;&nbsp;&nbsp;&nbsp;${hospitalized} hospitalized<br>`;
+            innerHTML += `&nbsp;&nbsp;&nbsp;&nbsp;${death} deaths<br>`;
+            innerHTML += `${total_icu_beds} Total ICU beds<br>`;
+            innerHTML += `<b>${cases_per_bed2}</b> Cases per bed`;
         } else {
             innerHTML += 'Hover over a state'
         }
@@ -84,7 +97,7 @@ function style(feature) {
         color: 'white',
         dashArray: '3',
         fillOpacity: 0.7,
-        fillColor: getColor(feature['properties']['cases per bed'])
+        fillColor: getColor(feature['properties']['cases_per_bed'])
     };
 }
 
@@ -152,7 +165,7 @@ function addGeoJSON() {
         onEachFeature: onEachFeature
     }).addTo(map);
 
-    map.attributionControl.addAttribution('Healthcare data &copy; <a href="https://globalepidemics.org/2020/03/17/caring-for-covid-19-patients/">HGHI</a>, COVID-19 data &copy; <a href="https://github.com/CSSEGISandData/COVID-19">JHU CSSE</a>');
+    map.attributionControl.addAttribution('Healthcare data &copy; <a href="https://globalepidemics.org/2020/03/17/caring-for-covid-19-patients/">HGHI</a>, COVID-19 data &copy; <a href="https://covidtracking.com/">COVID Tracking Project</a>');
 }
 
 // -------------------- LEGEND --------------------
@@ -186,27 +199,26 @@ function addLegend() {
 // -------------------- INFO ELEMENTS --------------------
 
 function setWorst(feature) {
-    let cpb = feature["properties"]["cases per bed"];
-    document.getElementById("worst").innerText = feature["properties"]["name"];
-    document.getElementById("worst-value").innerText = Math.round(100*cpb)/100;
+    document.getElementById("worst").innerText = feature["properties"]["full_name"];
+    document.getElementById("worst-value").innerText = formatNum(feature["properties"]["cases_per_bed2"]);
 }
 
 
 function setSafest(feature) {
-    let cpb = feature["properties"]["cases per bed"];
-    document.getElementById("safest").innerText = feature["properties"]["name"];
-    document.getElementById("safest-value").innerText = Math.round(100*cpb)/100;
+    let cpb = feature["properties"]["cases_per_bed"];
+    document.getElementById("safest").innerText = feature["properties"]["full_name"];
+    document.getElementById("safest-value").innerText = formatNum(feature["properties"]["cases_per_bed2"]);
 }
 
 
 function setBadStates(features) {
-    let badStates = features.filter(feat => feat['properties']['cases per bed'] > 9);
+    let badStates = features.filter(feat => feat['properties']['cases_per_bed'] > 9);
 
     let num = document.getElementById("num-bad-states");
     num.innerText = badStates.length;
 
     let list = document.getElementById("bad-states");
-    list.innerHTML = badStates.map(feat => `<b>${feat['properties']['name']}</b>`);
+    list.innerHTML = badStates.map(feat => `<b>${feat['properties']['full_name']}</b>`);
 }
 
 // -------------------- MAIN --------------------

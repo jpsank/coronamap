@@ -4,7 +4,7 @@ from flask import render_template, current_app, jsonify
 from sqlalchemy import cast, Float, desc, func, distinct
 
 from app import db
-from app.models import Region, Confirmed, Deaths, Recovered
+from app.models import Region, CoronaStat
 from app.blueprints.main import bp
 
 
@@ -14,7 +14,7 @@ from app.blueprints.main import bp
 @bp.route('/index', defaults={'date': None})
 @bp.route('/<date>')
 def index(date):
-    recorded_dates = db.session.query(distinct(Confirmed.recorded_at)).order_by(Confirmed.recorded_at.desc())\
+    recorded_dates = db.session.query(distinct(CoronaStat.recorded_at)).order_by(CoronaStat.recorded_at.desc())\
         .limit(18).all()
     recorded_dates = [date_fmt_string(d[0]) for d in recorded_dates]
 
@@ -54,19 +54,21 @@ def fetch(date):
 
     # Just take a moment to appreciate this massive SQLAlchemy query
     results = Region.query\
-        .join(Confirmed).filter(Confirmed.recorded_at == date) \
-        .join(Deaths).filter(Deaths.recorded_at == date) \
-        .join(Recovered).filter(Recovered.recorded_at == date) \
+        .join(CoronaStat).filter(CoronaStat.recorded_at == date) \
         .group_by(Region) \
-        .add_column(Confirmed.value) \
-        .add_column(Deaths.value) \
-        .add_column(Recovered.value) \
-        .add_column((cast(Confirmed.value, Float) / cast(Region.total_icu_beds, Float)).label("cases_per_bed")) \
+        .add_column(CoronaStat.positive) \
+        .add_column(CoronaStat.negative) \
+        .add_column(CoronaStat.pending) \
+        .add_column(CoronaStat.hospitalized) \
+        .add_column(CoronaStat.death) \
+        .add_column(CoronaStat.total_tests) \
+        .add_column((cast(CoronaStat.positive, Float) / cast(Region.total_icu_beds, Float)).label("cases_per_bed")) \
         .order_by("cases_per_bed").all()
 
     geojson = {"type": "FeatureCollection", "features": []}
-    for (region, confirmed, deaths, recovered, cases_per_bed) in results:
+    for (region, positive, negative, pending, hospitalized, death, total_tests, cases_per_bed) in results:
         properties = {
+            "full_name": region.full_name,
             "name": region.name,
 
             "Total Hospital Beds": region.total_beds,
@@ -78,11 +80,15 @@ def fetch(date):
             "Adult Population": region.adult_population,
             "Population 65+": region.population_65plus,
 
-            "confirmed": confirmed,
-            "deaths": deaths,
-            "recovered": recovered,
+            "positive": positive,
+            "negative": negative,
+            "pending": pending,
+            "hospitalized": hospitalized,
+            "death": death,
+            "total_tests": total_tests,
 
-            "cases per bed": cases_per_bed
+            "cases_per_bed": cases_per_bed,
+            "cases_per_bed2": round(cases_per_bed, 2)
         }
         feature = {
             "type": "Feature",

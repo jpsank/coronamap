@@ -5,33 +5,26 @@ from app.models.base import Base
 
 
 class CoronaStat(Base):
-    __abstract__ = True
-
     id = db.Column(db.Integer, primary_key=True)
-    value = db.Column(db.Integer)
+    region_name = db.Column(db.Integer, db.ForeignKey('region.name'))
+
+    total_tests = db.Column(db.Integer)
+    positive = db.Column(db.Integer, nullable=True)
+    negative = db.Column(db.Integer, nullable=True)
+    pending = db.Column(db.Integer, nullable=True)
+    hospitalized = db.Column(db.Integer, nullable=True)
+    death = db.Column(db.Integer, nullable=True)
+
     recorded_at = db.Column(db.Date)
 
-    @staticmethod
-    def get_or_create(cls, region_id, value, recorded_at):
-        existing = cls.query.filter_by(region_id=region_id, recorded_at=recorded_at).first()
+    @classmethod
+    def get_or_create(cls, **kwargs):
+        existing = cls.query.filter_by(**kwargs).first()
         if existing is not None:
-            existing.value = value
             return existing
         else:
-            return cls(region_id=region_id, value=value, recorded_at=recorded_at)
+            return cls(**kwargs)
 
     def serialize(self):
         return [self.value, self.recorded_at.strftime('%m/%d/%y')]
-
-
-class Confirmed(CoronaStat):
-    region_id = db.Column(db.Integer, db.ForeignKey('region.id'))
-
-
-class Deaths(CoronaStat):
-    region_id = db.Column(db.Integer, db.ForeignKey('region.id'))
-
-
-class Recovered(CoronaStat):
-    region_id = db.Column(db.Integer, db.ForeignKey('region.id'))
 
