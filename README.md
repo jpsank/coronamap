@@ -1,22 +1,22 @@
 # COVID-19 cases vs. ICU capacity map
 
-A daily-updating choropleth map that shows confirmed COVID-19 cases per intensive-care bed for each US state.
+A daily-updating choropleth map that shows confirmed COVID-19 cases per ICU bed for each US state.
 
 ## Sources
-Hospital stats from [Modern Healthcare](https://www.modernhealthcare.com/hospitals/covid-19-could-fill-hospital-beds-how-many-are-there)
+Hospital stats from [Harvard Global Health Institute](https://globalepidemics.org/2020/03/17/caring-for-covid-19-patients/)
 
-Daily COVID-19 data from [CSSE](https://github.com/CSSEGISandData/COVID-19)
+Daily COVID-19 data from [COVID Tracking Project](https://covidtracking.com/)
 
 ## Installation
-Installation is pretty simple. Clone the repo, setup a virtualenv, then install python dependencies
+Installation is pretty simple. Clone the repo, then install python dependencies with pipenv:
 
-`pip install -r requirements.txt`
+`pipenv install`
 
 Next, you can run the scraper manually with the `cron.sh` script:
 
 `./cron.sh`
 
-which will scrape COVID-19 data, aggregate it with hospital stats, and generate a GeoJSON file for Mapbox.
+which will scrape COVID-19 data, aggregate it with hospital stats and GeoJSON, and insert it into a database.
 This will then be displayed as a map when the user views the website.
 
 Once you've scraped the data, go ahead and start the flask server, which resides in the run.py file.
@@ -39,9 +39,8 @@ SENTRY_DSN = "123123@sentry.io/32423432"
 
 ### Daily Update
 Add the contents of the [cron.txt](cron.txt) file to your crontab to activate daily running of the scraper.
-This will run the scraper at 12:00am every day (CSSE updates their data daily at 23:59 UTC).
 
 ## Website
 ![A view of the homepage](screenshots/homepage.png)
 
-Once the server is up and running, this is what users see.
+Once the server is up and running, this, along with some more information below, is what users see.
