@@ -15,7 +15,8 @@ class CoronaStat(Base):
     hospitalized = db.Column(db.Integer, nullable=True)
     death = db.Column(db.Integer, nullable=True)
 
-    recorded_at = db.Column(db.Date)
+    date = db.Column(db.Date)
+    checked_at = db.Column(db.DateTime)
 
     @classmethod
     def get_or_create(cls, **kwargs):
@@ -24,7 +25,4 @@ class CoronaStat(Base):
             return existing
         else:
             return cls(**kwargs)
-
-    def serialize(self):
-        return [self.value, self.recorded_at.strftime('%m/%d/%y')]
 

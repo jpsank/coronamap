@@ -14,29 +14,33 @@ from app.blueprints.main import bp
 @bp.route('/index', defaults={'date': None})
 @bp.route('/<date>')
 def index(date):
-    recorded_dates = db.session.query(distinct(CoronaStat.recorded_at)).order_by(CoronaStat.recorded_at.desc())\
-        .limit(18).all()
-    recorded_dates = [date_fmt_string(d[0]) for d in recorded_dates]
+    dates = db.session.query(distinct(CoronaStat.date)).order_by(CoronaStat.date.desc()).limit(18).all()
+    dates = [dump_date(d[0]) for d in dates]
 
     # if date is unspecified or is not a valid date, use latest date
-    if date is None or date not in recorded_dates:
-        date = recorded_dates[0]
+    if date is None or date not in dates:
+        date = dates[0]
 
-    return render_template('main/home.html', title='Home', selected_date=date, dates=recorded_dates,
+    return render_template('main/home.html', title='Home', selected_date=date, dates=dates,
                            mapbox_access_token=current_app.config['MAPBOX_ACCESS_TOKEN'])
 
 
 # ------------------------------ FETCH ------------------------------
 
-def str_parse_date(string):
+def load_date(string):
     try:
         return datetime.datetime.strptime(string, '%m-%d-%y').date()
     except ValueError:
         return None
 
 
-def date_fmt_string(dt):
+def dump_date(dt):
     return dt.strftime('%m-%d-%y')
+
+
+def dump_datetime(value):
+    """Deserialize datetime object into iso format for JSON processing."""
+    return value.strftime('%Y-%m-%dT%H:%M:%SZ')
 
 
 def get_time_series_item(time_series, mdy):
@@ -48,14 +52,17 @@ def get_time_series_item(time_series, mdy):
 
 @bp.route('/fetch/<date>')
 def fetch(date):
-    date = str_parse_date(date)
+    date = load_date(date)
     if date is None:
         return 'Invalid date (must follow "MM-DD-YY")'
 
-    # Just take a moment to appreciate this massive SQLAlchemy query
+    # Just take a moment to appreciate this SQL query
+    # Note: for some reason computing the max date also selects for it?
     results = Region.query\
-        .join(CoronaStat).filter(CoronaStat.recorded_at == date) \
+        .join(CoronaStat).filter(CoronaStat.date <= date) \
         .group_by(Region) \
+        .add_column(func.max(CoronaStat.date)) \
+        .add_column(CoronaStat.checked_at) \
         .add_column(CoronaStat.positive) \
         .add_column(CoronaStat.negative) \
         .add_column(CoronaStat.pending) \
@@ -66,7 +73,8 @@ def fetch(date):
         .order_by("cases_per_bed").all()
 
     geojson = {"type": "FeatureCollection", "features": []}
-    for (region, positive, negative, pending, hospitalized, death, total_tests, cases_per_bed) in results:
+    for (region, date, checked_at, positive, negative, pending, hospitalized, death, total_tests,
+         cases_per_bed) in results:
         properties = {
             "full_name": region.full_name,
             "name": region.name,
@@ -80,6 +88,9 @@ def fetch(date):
             "Adult Population": region.adult_population,
             "Population 65+": region.population_65plus,
 
+            "date": dump_date(date),
+            "checked_at": dump_datetime(checked_at),
+
             "positive": positive,
             "negative": negative,
             "pending": pending,
@@ -87,8 +98,7 @@ def fetch(date):
             "death": death,
             "total_tests": total_tests,
 
-            "cases_per_bed": cases_per_bed,
-            "cases_per_bed2": round(cases_per_bed, 2)
+            "cases_per_bed": cases_per_bed
         }
         feature = {
             "type": "Feature",

@@ -26,10 +26,10 @@
     <div id="map"></div>
     <br>
     <p>
-        The worst state is <b id="worst"></b>, with
+        The worst region is <b id="worst"></b>, with
         <b id="worst-value"></b> cases per ICU bed.
         <br>
-        The safest state is <b id="safest"></b>, with
+        The safest region is <b id="safest"></b>, with
         <b id="safest-value"></b> cases per ICU bed.
     </p>
     <br>
@@ -40,7 +40,7 @@
     </p>
     <p>
         If it turns out that 1 in 9 cases require ICU admission, then
-        <b id="num-bad-states"></b> states
+        <b id="num-bad-states"></b> state(s)
         as of {{ selected_date|replace('-', '/') }}
         have too few ICU beds for their number of cases.
         <br>
@@ -55,6 +55,7 @@
     <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
     integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
     crossorigin=""></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@1.19.3/build/global/luxon.min.js"></script>
 
     <script>
         const mapboxAccessToken = '{{ mapbox_access_token }}';

@@ -3,6 +3,8 @@
 // mapboxAccessToken
 // selectedDate
 
+const DateTime = luxon.DateTime;
+
 
 // -------------------- INIT MAP --------------------
 
@@ -29,6 +31,9 @@ let info;
 function formatNum(n) {
     return n === null? 'N/A' : n.toLocaleString();
 }
+function round2(n) {
+    return Math.round(n*100) / 100.;
+}
 
 function addInfo() {
     // control that shows state info on hover
@@ -43,6 +48,7 @@ function addInfo() {
     info.update = function (props) {
         let innerHTML = '<h4>COVID-19 Cases vs. ICU Capacity</h4>';
         if (props) {
+            let datetime = DateTime.fromISO(props['checked_at']).toLocaleString(DateTime.DATETIME_SHORT);
             let full_name = props['full_name'],
                 positive = formatNum(props['positive']),
                 negative = formatNum(props['negative']),
@@ -50,18 +56,18 @@ function addInfo() {
                 pending = formatNum(props['pending']),
                 hospitalized = formatNum(props['hospitalized']),
                 death = formatNum(props['death']),
-                cases_per_bed2 = formatNum(props['cases_per_bed2']),
+                cases_per_bed = formatNum(round2(props['cases_per_bed'])),
                 total_icu_beds = formatNum(props['Total ICU Beds']);
 
             innerHTML += `<b>${full_name}</b><br>`;
-            innerHTML += `${positive} positive tests <span class="small">(${selectedDate})</span><br>`;
+            innerHTML += `${positive} positive tests <span class="small">(${datetime})</span><br>`;
             innerHTML += `&nbsp;&nbsp;&nbsp;&nbsp;${negative} negative tests<br>`;
             innerHTML += `&nbsp;&nbsp;&nbsp;&nbsp;${pending} pending tests<br>`;
             innerHTML += `&nbsp;&nbsp;&nbsp;&nbsp;${total_tests} total tests<br>`;
             innerHTML += `&nbsp;&nbsp;&nbsp;&nbsp;${hospitalized} hospitalized<br>`;
             innerHTML += `&nbsp;&nbsp;&nbsp;&nbsp;${death} deaths<br>`;
             innerHTML += `${total_icu_beds} Total ICU beds<br>`;
-            innerHTML += `<b>${cases_per_bed2}</b> Cases per bed`;
+            innerHTML += `<b>${cases_per_bed}</b> Cases per bed`;
         } else {
             innerHTML += 'Hover over a state'
         }
@@ -199,15 +205,16 @@ function addLegend() {
 // -------------------- INFO ELEMENTS --------------------
 
 function setWorst(feature) {
+    let cpb = feature["properties"]["cases_per_bed"];
     document.getElementById("worst").innerText = feature["properties"]["full_name"];
-    document.getElementById("worst-value").innerText = formatNum(feature["properties"]["cases_per_bed2"]);
+    document.getElementById("worst-value").innerText = formatNum(round2(cpb));
 }
 
 
 function setSafest(feature) {
     let cpb = feature["properties"]["cases_per_bed"];
     document.getElementById("safest").innerText = feature["properties"]["full_name"];
-    document.getElementById("safest-value").innerText = formatNum(feature["properties"]["cases_per_bed2"]);
+    document.getElementById("safest-value").innerText = formatNum(round2(cpb));
 }
 
 

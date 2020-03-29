@@ -19,6 +19,7 @@ def index_by_key(objects, key):
 
 
 states_daily = load_data("covid/states_daily.json")
+states_current = load_data("covid/states_current.json")
 hospital_data = index_by_key(load_data("static/hospital-data.json"), "State")
 geojson = load_data("static/states.geo.json")
 
@@ -46,14 +47,16 @@ for feature in geojson["features"]:
 db.session.commit()
 
 
-for stat in states_daily:
-    recorded_at = datetime.datetime.strptime(str(stat["date"]), '%Y%m%d').date()
-    cs = CoronaStat.get_or_create(region_name=stat["state"], recorded_at=recorded_at)
-    cs.positive = stat["positive"]
-    cs.negative = stat["negative"]
-    cs.pending = stat["pending"]
-    cs.hospitalized = stat["hospitalized"]
-    cs.death = stat["death"]
-    cs.total_tests = stat["total"]
+for state in states_daily + states_current:
+    dt = datetime.datetime.strptime(state["dateChecked"], '%Y-%m-%dT%H:%M:%SZ')
+
+    cs = CoronaStat.get_or_create(region_name=state["state"], date=dt.date())
+    cs.checked_at = dt
+    cs.positive = state["positive"]
+    cs.negative = state["negative"]
+    cs.pending = state["pending"]
+    cs.hospitalized = state["hospitalized"]
+    cs.death = state["death"]
+    cs.total_tests = state["totalTestResults"]
     db.session.merge(cs)
 db.session.commit()

@@ -18,3 +18,4 @@ def download_file(url, fn):
 
 
 download_file("https://covidtracking.com/api/states/daily", "states_daily.json")
+download_file("https://covidtracking.com/api/states", "states_current.json")
