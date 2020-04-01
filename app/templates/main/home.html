@@ -37,19 +37,21 @@
         have too few ICU beds for their number of cases.
     </p>
     <br>
-    <table id="ranked" class="table table-hover">
-        <tr>
-            <th>Rank</th>
-            <th>Name</th>
-            <th>Cases per ICU bed</th>
-            <th>Positive tests</th>
-            <th>Negative tests</th>
-            <th>Total tests</th>
-            <th>Hospitalized</th>
-            <th>Deaths</th>
-            <th>Total ICU Beds</th>
-        </tr>
-    </table>
+    <div class="scrollable">
+        <table id="ranked" class="table table-hover table-condensed">
+            <tr>
+                <th>Rank</th>
+                <th>Name</th>
+                <th>Cases / ICU bed</th>
+                <th>Positive tests</th>
+                <th>Negative tests</th>
+                <th>Total tests</th>
+                <th>Hospitalized</th>
+                <th>Deaths</th>
+                <th>Total ICU Beds</th>
+            </tr>
+        </table>
+    </div>
     <br>
     <br>
     <i class="small">Built by Julian Sanker. <a href="mailto:julian@sankergroup.org">Contact me</a> if you have any issues</i>
@@ -66,5 +68,5 @@
         const mapboxAccessToken = '{{ mapbox_access_token }}';
         const selectedDate = '{{ selected_date }}';
     </script>
-    <script src="{{ url_for('static', filename='js/main.js', version='1') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js', version='2') }}"></script>
 {% endblock %}

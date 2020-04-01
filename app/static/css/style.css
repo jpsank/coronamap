@@ -18,6 +18,23 @@ body {
 }
 
 
+.scrollable {
+    overflow-x: scroll;
+}
+
+
+@media (max-width: 1000px) {
+    #ranked {
+        font-size: small;
+    }
+}
+@media (max-width: 700px) {
+    #ranked {
+        font-size: x-small;
+    }
+}
+
+
 .dates {
     padding: 8px;
     display: flex;
