@@ -70,7 +70,7 @@ def fetch(date):
         .add_column(CoronaStat.death) \
         .add_column(CoronaStat.total_tests) \
         .add_column((cast(CoronaStat.positive, Float) / cast(Region.total_icu_beds, Float)).label("cases_per_bed")) \
-        .order_by("cases_per_bed").all()
+        .order_by(desc("cases_per_bed")).all()
 
     geojson = {"type": "FeatureCollection", "features": []}
     for (region, date, checked_at, positive, negative, pending, hospitalized, death, total_tests,

@@ -204,28 +204,28 @@ function addLegend() {
 
 // -------------------- INFO ELEMENTS --------------------
 
-function setWorst(feature) {
-    let cpb = feature["properties"]["cases_per_bed"];
-    document.getElementById("worst").innerText = feature["properties"]["full_name"];
-    document.getElementById("worst-value").innerText = formatNum(round2(cpb));
-}
-
-
-function setSafest(feature) {
-    let cpb = feature["properties"]["cases_per_bed"];
-    document.getElementById("safest").innerText = feature["properties"]["full_name"];
-    document.getElementById("safest-value").innerText = formatNum(round2(cpb));
-}
-
 
 function setBadStates(features) {
     let badStates = features.filter(feat => feat['properties']['cases_per_bed'] > 9);
+    document.getElementById("num-bad-states").innerText = badStates.length;
+}
 
-    let num = document.getElementById("num-bad-states");
-    num.innerText = badStates.length;
-
-    let list = document.getElementById("bad-states");
-    list.innerHTML = badStates.map(feat => `<b>${feat['properties']['full_name']}</b>`);
+function setRanked(features) {
+    let elem = document.getElementById("ranked");
+    features.forEach((feat, index) => {
+        let props = feat['properties'];
+        elem.innerHTML += `<tr>`
+            + `<td>${index+1}</td>`
+            + `<td>${props['full_name']}</td>`
+            + `<td ${props['cases_per_bed'] > 9? 'class="red"' : ''}><b>${formatNum(round2(props['cases_per_bed']))}</b></td>`
+            + `<td>${formatNum(props['positive'])}</td>`
+            + `<td>${formatNum(props['negative'])}</td>`
+            + `<td>${formatNum(props['total_tests'])}</td>`
+            + `<td>${formatNum(props['hospitalized'])}</td>`
+            + `<td>${formatNum(props['death'])}</td>`
+            + `<td class="grey">${formatNum(props['Total ICU Beds'])}</td>`
+            + `</tr>`;
+    });
 }
 
 // -------------------- MAIN --------------------
@@ -242,9 +242,7 @@ async function main() {
 
     let features = geoData["features"];
     setBadStates(features);
-
-    setSafest(features[0]);
-    setWorst(features[features.length-1]);
+    setRanked(features);
 
     // Map
     initMap();

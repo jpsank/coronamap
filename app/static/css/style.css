@@ -10,12 +10,11 @@ body {
     }
 }
 
-.row {
-    display: flex;
+.red {
+    color: red;
 }
-
-.column {
-    flex: 50%;
+.grey {
+    color: grey;
 }
 
 
