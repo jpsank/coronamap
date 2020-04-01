@@ -28,11 +28,6 @@ body {
         font-size: small;
     }
 }
-@media (max-width: 700px) {
-    #ranked {
-        font-size: x-small;
-    }
-}
 
 
 .dates {
