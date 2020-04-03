@@ -52,11 +52,11 @@ for state in states_daily + states_current:
 
     cs = CoronaStat.get_or_create(region_name=state["state"], date=dt.date())
     cs.checked_at = dt
-    cs.positive = state["positive"]
-    cs.negative = state["negative"]
-    cs.pending = state["pending"]
-    cs.hospitalized = state["hospitalized"]
-    cs.death = state["death"]
-    cs.total_tests = state["totalTestResults"]
+    cs.positive = state.get("positive")
+    cs.negative = state.get("negative")
+    cs.pending = state.get("pending")
+    cs.hospitalized = state.get("hospitalized")
+    cs.death = state.get("death")
+    cs.total_tests = state.get("totalTestResults")
     db.session.merge(cs)
 db.session.commit()

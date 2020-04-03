@@ -17,5 +17,5 @@ def download_file(url, fn):
     return path
 
 
-download_file("https://covidtracking.com/api/states/daily", "states_daily.json")
-download_file("https://covidtracking.com/api/states", "states_current.json")
+download_file("https://covidtracking.com/api/v1/states/daily.json", "states_daily.json")
+download_file("https://covidtracking.com/api/v1/states/current.json", "states_current.json")
