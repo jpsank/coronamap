@@ -67,7 +67,7 @@ function addInfo() {
             innerHTML += `&nbsp;&nbsp;&nbsp;&nbsp;${hospitalized} hospitalized<br>`;
             innerHTML += `&nbsp;&nbsp;&nbsp;&nbsp;${death} deaths<br>`;
             innerHTML += `${total_icu_beds} Total ICU beds<br>`;
-            innerHTML += `<b>${cases_per_bed}</b> Cases per bed`;
+            innerHTML += `<b>${cases_per_bed}</b> Cases / ICU bed`;
         } else {
             innerHTML += 'Hover over a state'
         }
