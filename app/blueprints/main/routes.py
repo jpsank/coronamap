@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, timedelta
 import json
 from flask import render_template, current_app, jsonify
 from sqlalchemy import cast, Float, desc, func, distinct
@@ -10,18 +10,31 @@ from app.blueprints.main import bp
 
 # ------------------------------ FRONT PAGE ------------------------------
 
-@bp.route('/', defaults={'date': None})
-@bp.route('/index', defaults={'date': None})
-@bp.route('/<date>')
-def index(date):
-    dates = db.session.query(distinct(CoronaStat.date)).order_by(CoronaStat.date.desc()).limit(18).all()
+@bp.route('/', defaults={'mdy': None})
+@bp.route('/index', defaults={'mdy': None})
+@bp.route('/<mdy>')
+def index(mdy):
+    dates = None
+    if mdy is not None:
+        date = load_date(mdy)
+        exists = db.session.query(CoronaStat.date).filter_by(date=date).first() is not None
+        # if inputted date exists in the db, fetch the dates around that date, with it in the middle
+        if exists:
+            dates = db.session.query(distinct(CoronaStat.date))\
+                .filter(CoronaStat.date <= date + timedelta(days=9)).order_by(CoronaStat.date.desc()).limit(18).all()
+
+    # if either no inputted date or inputted date was not in the database, use latest dates
+    if dates is None:
+        dates = db.session.query(distinct(CoronaStat.date)).order_by(CoronaStat.date.desc()).limit(18).all()
+
+    # convert to list of date strings
     dates = [dump_date(d[0]) for d in dates]
 
-    # if date is unspecified or is not a valid date, use latest date
-    if date is None or date not in dates:
-        date = dates[0]
+    # if date is unspecified, use latest date
+    if mdy is None:
+        mdy = dates[0]
 
-    return render_template('main/home.html', title='Home', selected_date=date, dates=dates,
+    return render_template('main/home.html', title='Home', selected_date=mdy, dates=dates,
                            mapbox_access_token=current_app.config['MAPBOX_ACCESS_TOKEN'])
 
 
@@ -29,7 +42,7 @@ def index(date):
 
 def load_date(string):
     try:
-        return datetime.datetime.strptime(string, '%m-%d-%y').date()
+        return datetime.strptime(string, '%m-%d-%y').date()
     except ValueError:
         return None
 
