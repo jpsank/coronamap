@@ -48,7 +48,12 @@ db.session.commit()
 
 
 for state in states_daily + states_current:
-    dt = datetime.datetime.strptime(state["dateChecked"], '%Y-%m-%dT%H:%M:%SZ')
+    if dateChecked := state.get("dateChecked"):
+        dt = datetime.datetime.strptime(dateChecked, '%Y-%m-%dT%H:%M:%SZ')
+    elif state.get("date"):
+        dt = datetime.datetime.strptime(str(state["date"]), '%Y%m%d')
+    else:
+        continue
 
     cs = CoronaStat.get_or_create(region_name=state["state"], date=dt.date())
     cs.checked_at = dt
